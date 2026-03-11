@@ -38,6 +38,8 @@ pipeline {
 
         stage('Compiling Codes') {
             steps {
+                sh 'apt update'
+                sh 'apt install -y lsb-release ca-certificates curl apt-transport-https software-properties-common'
                 sh 'php -v'
                 sh 'composer install --no-interaction --prefer-dist --optimize-autoloader'
             }
