@@ -1,0 +1,250 @@
+pipeline {
+    agent {
+        docker {
+          image 'php:8.3-cli'
+        }
+    }
+
+    // agent any
+
+    // agent {
+    //     docker {
+    //         image 'docker:24.0.7-dind' // atau versi yang stabil
+    //         args '-v /var/run/docker.sock:/var/run/docker.sock'
+    //     }
+    // }
+
+    environment {
+        gitUrl = 'https://github.com/delairs/dummy-laravel.git'
+        gitBranch = 'main'
+        appsName = 'dummy-laravel'
+        registry = "delairs/$appsName"
+        dockerCred = credentials('dockerCred')
+        kubeConfig = credentials('kubeConfig')
+    }
+
+    // tools {nodejs "node22"}
+
+    stages{
+        stage('Clone Repository') {
+            steps {
+                
+                // Perintah 'git' akan meng-clone repository
+                // ke dalam workspace Jenkins
+                git url: gitUrl, branch: gitBranch
+                
+                echo "Clone selesai."
+                
+                // Opsional: verifikasi isi folder
+                sh 'ls -la'
+                sh 'cp -rf ./deployment/* .'
+            }
+        }
+
+        stage('Compiling Codes') {
+            steps {
+                sh 'php -v'
+                sh 'composer install --no-interaction --prefer-dist --optimize-autoloader'
+            }
+        }
+
+        // stage('Snyk - Dependency Scan (Plugin)') {
+        //     steps {
+        //         snykSecurity(
+        //             snykInstallation: 'Snyk',
+        //             snykTokenId: 'snykToken',      // ini ID credential token Snyk di Jenkins
+        //             severity: 'low',
+        //             targetFile: 'package.json',    // bisa juga arahkan ke folder/manifest yang kamu mau
+        //             projectName: 'plasticycle'
+        //         )
+        //     }
+        // }
+
+        // stage('Debug deps') {
+        //   steps {
+        //     sh '''
+        //       pwd
+        //       ls -la
+        //       test -f package.json && echo "package.json OK"
+        //       test -f package-lock.json && echo "package-lock OK"
+        //       node -v
+        //       npm -v
+        //       npm ls --depth=0 || true
+        //     '''
+        //   }
+        // }
+
+        // stage('Debug Snyk Deps (print-deps)') {
+        //   steps {
+        //     sh '''
+        //       /var/jenkins_home/tools/io.snyk.jenkins.tools.SnykInstallation/Snyk/snyk-linux test \
+        //         --file=package-lock.json \
+        //         --print-deps | head -n 80
+        //     '''
+        //   }
+        // }
+
+        // stage('Debug Snyk Deps (grep)') {
+        //   steps {
+        //     withCredentials([string(credentialsId: 'snykToken1', variable: 'SNYK_TOKEN')]) {
+        //       sh '''
+        //         /var/jenkins_home/tools/io.snyk.jenkins.tools.SnykInstallation/Snyk/snyk-linux auth $SNYK_TOKEN
+        //         /var/jenkins_home/tools/io.snyk.jenkins.tools.SnykInstallation/Snyk/snyk-linux test \
+        //           --file=package-lock.json --dev --print-deps \
+        //         | grep -Ei "lodash|serialize-javascript|minimist" | head -n 50
+        //       '''
+        //     }
+        //   }
+        // }
+
+        // stage('Snyk - Dependency Scan (Plugin)') {
+        //   steps {
+        //     snykSecurity(
+        //       snykInstallation: 'Snyk',
+        //       snykTokenId: 'snykToken',
+        //       severity: 'low',
+        //       targetFile: 'package-lock.json',
+        //       projectName: 'plasticycle'
+        //     )
+        //   }
+        // }
+
+        // stage('Snyk - Full Dependency Scan') {
+        //   steps {
+        //     snykSecurity(
+        //       snykInstallation: 'Snyk',
+        //       snykTokenId: 'snykToken',
+        //       severity: 'low',                 // ini jadi --severity-threshold
+        //       targetFile: 'package-lock.json',
+        //       projectName: 'plasticycle',
+        //       additionalArguments: '''
+        //         --dev
+        //         --strict-out-of-sync=true
+        //         --show-vulnerable-paths=all
+        //         --policy-path=.snyk
+        //       '''.trim()
+        //     )
+        //   }
+        // }
+
+        //INI STAGE FINAL
+        // stage('Snyk - Full Dependency Scan') {
+        //   steps {
+        //     script {
+        //       try {
+        //         snykSecurity(
+        //           snykInstallation: 'Snyk',
+        //           snykTokenId: 'snykToken',
+        //           severity: 'low',
+        //           targetFile: 'package-lock.json',
+        //           projectName: 'plasticycle',
+        //           additionalArguments: '''
+        //             --dev
+        //             --strict-out-of-sync=true
+        //             --show-vulnerable-paths=all
+        //             --policy-path=.snyk
+        //           '''.trim()
+        //         )
+
+        //         env.stageResultsnyk = 'true'
+        //       } catch (Exception e) {
+        //         unstable("${STAGE_NAME} failed!")
+        //         env.stageResultsnyk = 'false'
+        //       }
+        //     }
+        //   }
+        // }
+
+        //INI STAGE FINAL
+        // stage('SonarQube - Code Analysis') {
+        //     steps {
+        //       withSonarQubeEnv('sonarqube') {
+        //         script {
+        //           def scannerHome = tool 'sonarQubeScanner'
+        //           sh """
+        //             ${scannerHome}/bin/sonar-scanner \
+        //               -Dsonar.projectKey=${appsName} \
+        //               -Dsonar.projectName=${appsName} \
+        //               -Dsonar.sources=. \
+        //               -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/coverage/**
+        //           """
+        //         }
+        //       }
+        //     }
+        // }
+
+
+        // stage('SonarQube - Quality Gate') {
+        //   steps {
+        //     timeout(time: 5, unit: 'MINUTES') {
+        //       waitForQualityGate abortPipeline: true
+        //     }
+        //   }
+        // }    
+
+        //INI STAGE FINAL
+        // stage('Build Docker Image') {
+        //     steps {
+        //         echo "Mulai membuat Docker image..."
+        //         // Tag image dengan username Docker Hub-mu
+        //         // Contoh: sh 'docker build -t johndoe/pokedex-app:latest .'
+        //         sh "docker build -t ${registry}:${BUILD_NUMBER} ."
+        //     }
+        // }
+
+        // stage('Push to Docker Hub') {
+        //     steps {
+        //         script {
+        //             sh """
+        //                 docker push ${registry}:${BUILD_NUMBER}
+        //             """
+        //         }
+        //     }
+        // }
+
+        //INI STAGE FINAL
+        // stage('Push to Docker Hub') {
+        //     steps {
+        //         script {
+        //             withCredentials([usernamePassword(credentialsId: 'dockerCred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        //                 sh """
+        //                     echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+        //                     docker push ${registry}:${BUILD_NUMBER}
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
+
+        //INI STAGE FINAL
+        // stage('Deploy to Kubernetes') {
+        //     // when {
+        //     //     expression {
+        //     //         env.stageResultsnyk == 'true'
+        //     //     }
+        //     // }
+        //     steps {
+        //         script {
+        //             sh "sed -i 's/latest/$env.BUILD_NUMBER/g' deployment.yaml"
+        //             sh "kubectl --kubeconfig=$kubeConfig apply --validate=false -f deployment.yaml -n prod"
+        //             sh "kubectl --kubeconfig=$kubeConfig rollout status deployment plasticycle -n prod --timeout=300s"
+        //         }
+        //     }
+        // }
+    }
+    post {
+        always {
+            deleteDir()
+        }
+        success {
+            echo "Release Success"
+        }
+        failure {
+            echo "Release Failed"
+        }
+        cleanup {
+            echo "Clean up in post work space"
+            cleanWs()
+        }
+    }
+}
