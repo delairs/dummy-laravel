@@ -122,51 +122,51 @@ pipeline {
         //   }
         // }
 
-        //INI STAGE FINAL
-        // stage('Snyk - Full Dependency Scan') {
-        //   steps {
-        //     script {
-        //       try {
-        //         snykSecurity(
-        //           snykInstallation: 'Snyk',
-        //           snykTokenId: 'snykToken',
-        //           severity: 'low',
-        //           targetFile: 'package-lock.json',
-        //           projectName: 'plasticycle',
-        //           additionalArguments: '''
-        //             --dev
-        //             --strict-out-of-sync=true
-        //             --show-vulnerable-paths=all
-        //             --policy-path=.snyk
-        //           '''.trim()
-        //         )
+        // INI STAGE FINAL
+        stage('Snyk - Full Dependency Scan') {
+          steps {
+            script {
+              try {
+                snykSecurity(
+                  snykInstallation: 'Snyk',
+                  snykTokenId: 'snykToken',
+                  severity: 'low',
+                  targetFile: 'package-lock.json',
+                  projectName: 'dummy-laravel',
+                  additionalArguments: '''
+                    --dev
+                    --strict-out-of-sync=true
+                    --show-vulnerable-paths=all
+                    --policy-path=.snyk
+                  '''.trim()
+                )
 
-        //         env.stageResultsnyk = 'true'
-        //       } catch (Exception e) {
-        //         unstable("${STAGE_NAME} failed!")
-        //         env.stageResultsnyk = 'false'
-        //       }
-        //     }
-        //   }
-        // }
+                env.stageResultsnyk = 'true'
+              } catch (Exception e) {
+                unstable("${STAGE_NAME} failed!")
+                env.stageResultsnyk = 'false'
+              }
+            }
+          }
+        }
 
-        //INI STAGE FINAL
-        // stage('SonarQube - Code Analysis') {
-        //     steps {
-        //       withSonarQubeEnv('sonarqube') {
-        //         script {
-        //           def scannerHome = tool 'sonarQubeScanner'
-        //           sh """
-        //             ${scannerHome}/bin/sonar-scanner \
-        //               -Dsonar.projectKey=${appsName} \
-        //               -Dsonar.projectName=${appsName} \
-        //               -Dsonar.sources=. \
-        //               -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/coverage/**
-        //           """
-        //         }
-        //       }
-        //     }
-        // }
+        // INI STAGE FINAL
+        stage('SonarQube - Code Analysis') {
+            steps {
+              withSonarQubeEnv('sonarqube') {
+                script {
+                  def scannerHome = tool 'sonarQubeScanner'
+                  sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                      -Dsonar.projectKey=${appsName} \
+                      -Dsonar.projectName=${appsName} \
+                      -Dsonar.sources=. \
+                      -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/coverage/**
+                  """
+                }
+              }
+            }
+        }
 
 
         // stage('SonarQube - Quality Gate') {
@@ -178,14 +178,14 @@ pipeline {
         // }    
 
         //INI STAGE FINAL
-        // stage('Build Docker Image') {
-        //     steps {
-        //         echo "Mulai membuat Docker image..."
-        //         // Tag image dengan username Docker Hub-mu
-        //         // Contoh: sh 'docker build -t johndoe/pokedex-app:latest .'
-        //         sh "docker build -t ${registry}:${BUILD_NUMBER} ."
-        //     }
-        // }
+        stage('Build Docker Image') {
+            steps {
+                echo "Mulai membuat Docker image..."
+                // Tag image dengan username Docker Hub-mu
+                // Contoh: sh 'docker build -t johndoe/pokedex-app:latest .'
+                sh "docker build -t ${registry}:${BUILD_NUMBER} ."
+            }
+        }
 
         // stage('Push to Docker Hub') {
         //     steps {
@@ -198,18 +198,18 @@ pipeline {
         // }
 
         //INI STAGE FINAL
-        // stage('Push to Docker Hub') {
-        //     steps {
-        //         script {
-        //             withCredentials([usernamePassword(credentialsId: 'dockerCred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-        //                 sh """
-        //                     echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
-        //                     docker push ${registry}:${BUILD_NUMBER}
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerCred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+                            docker push ${registry}:${BUILD_NUMBER}
+                        """
+                    }
+                }
+            }
+        }
 
         //INI STAGE FINAL
         // stage('Deploy to Kubernetes') {
