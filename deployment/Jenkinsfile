@@ -40,6 +40,7 @@ pipeline {
             steps {
                 sh 'php -v'
                 sh 'composer install --no-interaction --prefer-dist --optimize-autoloader'
+                sh 'ls -la'
             }
         }
 
