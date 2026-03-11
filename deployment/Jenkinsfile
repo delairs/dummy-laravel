@@ -132,7 +132,7 @@ pipeline {
                   snykInstallation: 'Snyk',
                   snykTokenId: 'snykToken',
                   severity: 'low',
-                  targetFile: 'package.json',
+                  targetFile: 'composer.lock',
                   projectName: 'dummy-laravel',
                   additionalArguments: '''
                     --dev
