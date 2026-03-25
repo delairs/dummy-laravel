@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-laravel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummy-laravel
+  template:
+    metadata:
+      labels:
+        app: dummy-laravel
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-token: "true"
+        vault.hashicorp.com/role: "prod"
+        vault.hashicorp.com/auth-path: "auth/kubernetes-cluster-demo"
+
+        # Inject file envconsul.hcl
+        vault.hashicorp.com/agent-inject-secret-envconsul.hcl: "kv/secret/prod/DUMMY-LARAVEL"
+        vault.hashicorp.com/agent-inject-template-envconsul.hcl: |
+          vault {
+            address = "http://vault.vault.svc:8200"
+            vault_agent_token_file = "/vault/secrets/token"
+            renew_token = true
+          }
+
+          secret {
+            path = "kv/data/secret/prod/DUMMY-LARAVEL"
+            format = "env"
+            no_prefix = true
+          }
+    spec:
+      serviceAccountName: vault-auth
+      containers:
+        - name: 
+          image: delairs/dummy-laravel:latest
+          ports:
+            - containerPort: 5173
