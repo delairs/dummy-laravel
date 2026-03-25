@@ -34,7 +34,7 @@ spec:
     spec:
       serviceAccountName: vault-auth
       containers:
-        - name: 
+        - name: dummy-laravel
           image: delairs/dummy-laravel:latest
           ports:
             - containerPort: 5173
