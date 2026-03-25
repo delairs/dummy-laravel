@@ -213,20 +213,20 @@ pipeline {
         }
 
         //INI STAGE FINAL
-        // stage('Deploy to Kubernetes') {
-        //     // when {
-        //     //     expression {
-        //     //         env.stageResultsnyk == 'true'
-        //     //     }
-        //     // }
-        //     steps {
-        //         script {
-        //             sh "sed -i 's/latest/$env.BUILD_NUMBER/g' deployment.yaml"
-        //             sh "kubectl --kubeconfig=$kubeConfig apply --validate=false -f deployment.yaml -n prod"
-        //             sh "kubectl --kubeconfig=$kubeConfig rollout status deployment plasticycle -n prod --timeout=300s"
-        //         }
-        //     }
-        // }
+        stage('Deploy to Kubernetes') {
+            // when {
+            //     expression {
+            //         env.stageResultsnyk == 'true'
+            //     }
+            // }
+            steps {
+                script {
+                    sh "sed -i 's/latest/$env.BUILD_NUMBER/g' deployment.yaml"
+                    sh "kubectl --kubeconfig=$kubeConfig apply --validate=false -f deployment.yaml -n prod"
+                    sh "kubectl --kubeconfig=$kubeConfig rollout status deployment ${appsName} -n prod --timeout=300s"
+                }
+            }
+        }
     }
     post {
         always {
