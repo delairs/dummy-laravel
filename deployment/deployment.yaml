@@ -14,7 +14,7 @@ spec:
       annotations:
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/agent-inject-token: "true"
-        vault.hashicorp.com/role: "dummy-laravel"
+        vault.hashicorp.com/role: "dummy-laravel-role"
         vault.hashicorp.com/auth-path: "auth/kubernetes-cluster-demo"
 
         # Inject file envconsul.hcl
