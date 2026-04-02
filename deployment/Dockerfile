@@ -34,7 +34,6 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 RUN mkdir -p /app/database && touch /app/database/database.sqlite
 
-RUN php artisan key:generate || true
 RUN php artisan migrate || true
 
 EXPOSE 8000
