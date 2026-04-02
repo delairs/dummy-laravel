@@ -32,9 +32,6 @@ RUN chmod +x /app/run.sh
 # install dependency
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# env setup
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
-
 RUN mkdir -p /app/database && touch /app/database/database.sqlite
 
 RUN php artisan key:generate || true
