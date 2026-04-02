@@ -27,8 +27,7 @@ spec:
           }
 
           secret {
-            path = "kv/data/secret/prod/DUMMY-LARAVEL"
-            format = "env"
+            path = "kv/secret/prod/DUMMY-LARAVEL"
             no_prefix = true
           }
     spec:
