@@ -169,6 +169,15 @@ pipeline {
             }
         }
 
+        // SEMGREP SCAN
+        stage('Run Semgrep Scan') {
+            steps {
+                sh 'semgrep scan --config auto --json --output semgrep-report.json'
+                archiveArtifacts artifacts: 'semgrep-report.json', fingerprint: true
+            }
+        }
+
+
 
         // stage('SonarQube - Quality Gate') {
         //   steps {
